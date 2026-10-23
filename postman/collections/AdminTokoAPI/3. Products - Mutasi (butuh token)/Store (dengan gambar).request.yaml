@@ -1,0 +1,35 @@
+$kind: http-request
+description: Pilih file gambar (jpg/png, maks 2MB) pada field img. ID produk baru disimpan ke {{product_id}}.
+url: "{{base_url}}/api/products"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: formdata
+  content:
+    - type: text
+      key: name
+      value: Macbook Pro
+    - type: text
+      key: description
+      value: Laptop Apple
+    - type: text
+      key: category_id
+      value: "1"
+    - type: text
+      key: price
+      value: "23000000"
+    - type: text
+      key: stock
+      value: "2"
+    - type: file
+      key: img
+      src: []
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Store 201', () => pm.response.to.have.status(201));
+      const j = pm.response.json();
+      if (j.data) { pm.collectionVariables.set('product_id', j.data.id); }
+    language: text/javascript
+order: 3000

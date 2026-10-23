@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{base_url}}/api/products?per_page=5&page=1"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  per_page: "5"
+  page: "1"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('List 200', () => pm.response.to.have.status(200));
+      pm.test('Ada meta & links', () => { const j = pm.response.json(); pm.expect(j).to.have.property('meta'); pm.expect(j).to.have.property('links'); });
+    language: text/javascript
+order: 1000

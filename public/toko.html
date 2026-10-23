@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdminToko</title>
+<style>
+  :root {
+    --bg: #f6f7fb; --surface: #ffffff; --ink: #1c2230; --muted: #6b7385; --line: #e4e7ef;
+    --brand: #4f46e5; --brand-ink: #ffffff; --brand-soft: #eef0ff;
+    --ok: #15803d; --ok-soft: #e7f6ec; --warn: #b45309; --warn-soft: #fdf1e0;
+    --bad: #b91c1c; --bad-soft: #fdeaea; --radius: 14px;
+    --shadow: 0 1px 2px rgba(20,24,40,.06), 0 8px 24px rgba(20,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12141b; --surface: #1b1e28; --ink: #eceef5; --muted: #98a0b3; --line: #2b2f3d;
+      --brand: #7c78ff; --brand-ink: #10101a; --brand-soft: #25264a;
+      --ok: #5ddb8b; --ok-soft: #173325; --warn: #f2b25c; --warn-soft: #3a2b14;
+      --bad: #ff8a8a; --bad-soft: #3a1c1c; --shadow: 0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.45; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+  header.top { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+  header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; letter-spacing: -.01em; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: var(--brand); color: var(--brand-ink);
+          display: grid; place-items: center; font-weight: 800; }
+  #authArea { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .hello { color: var(--muted); font-size: 14px; margin-right: 4px; }
+
+  .btn { font: inherit; font-weight: 600; font-size: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+         padding: 9px 14px; border-radius: 10px; cursor: pointer; }
+  .btn:hover { border-color: var(--brand); }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; }
+  .btn.small { padding: 6px 10px; font-size: 13px; }
+  .btn.danger { color: var(--bad); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+  .hero { padding: 28px 0 8px; }
+  .hero h1 { margin: 0 0 4px; font-size: 28px; letter-spacing: -.02em; }
+  .hero p { margin: 0; color: var(--muted); }
+
+  .filters { display: grid; grid-template-columns: 1fr 190px 190px; gap: 10px; padding: 18px 0 6px; }
+  .filters input, .filters select, dialog input, dialog select, dialog textarea {
+    font: inherit; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); color: var(--ink); }
+  .filters input:focus, .filters select:focus, dialog input:focus, dialog select:focus, dialog textarea:focus {
+    outline: 2px solid var(--brand); outline-offset: 0; border-color: transparent; }
+  .meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; padding: 10px 2px 14px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+          display: flex; flex-direction: column; box-shadow: var(--shadow); }
+  .thumb { aspect-ratio: 4 / 3; background: var(--brand-soft); display: grid; place-items: center; overflow: hidden; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ph { font-size: 52px; font-weight: 800; color: var(--brand); opacity: .55; }
+  .body { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .chip { align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--brand); background: var(--brand-soft); padding: 3px 9px; border-radius: 99px; }
+  .name { font-weight: 650; font-size: 16px; margin: 2px 0 0; }
+  .desc { color: var(--muted); font-size: 13.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 38px; }
+  .row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 8px; }
+  .price { font-weight: 800; font-size: 18px; }
+  .stock { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; }
+  .stock.ok { color: var(--ok); background: var(--ok-soft); }
+  .stock.low { color: var(--warn); background: var(--warn-soft); }
+  .stock.out { color: var(--bad); background: var(--bad-soft); }
+  .actions { display: flex; gap: 8px; padding-top: 10px; }
+
+  .state { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 48px 12px; background: var(--surface);
+           border: 1px dashed var(--line); border-radius: var(--radius); }
+
+  #pager { display: flex; gap: 6px; justify-content: center; padding: 24px 0 8px; flex-wrap: wrap; }
+  #pager button { min-width: 38px; padding: 8px 10px; font: inherit; font-weight: 600; border: 1px solid var(--line); background: var(--surface);
+                  color: var(--ink); border-radius: 10px; cursor: pointer; }
+  #pager button.active { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+  #pager button:disabled { opacity: .45; cursor: not-allowed; }
+  #pager .dots { align-self: center; color: var(--muted); }
+
+  footer { color: var(--muted); font-size: 13px; text-align: center; padding: 28px 0 40px; }
+  footer a { color: var(--brand); }
+
+  dialog { border: 1px solid var(--line); border-radius: 16px; padding: 0; width: min(480px, calc(100vw - 24px));
+           background: var(--surface); color: var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+  dialog::backdrop { background: rgba(10,12,20,.55); }
+  dialog form { padding: 22px; display: grid; gap: 14px; }
+  dialog h2 { margin: 0; font-size: 20px; }
+  label { display: grid; gap: 6px; font-size: 13.5px; font-weight: 600; }
+  .hint { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+  .err { color: var(--bad); font-weight: 500; font-size: 12.5px; min-height: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+  .tabs { display: flex; gap: 6px; background: var(--bg); padding: 4px; border-radius: 10px; }
+  .tabs button { flex: 1; font: inherit; font-weight: 600; border: 0; background: transparent; color: var(--muted); padding: 8px; border-radius: 8px; cursor: pointer; }
+  .tabs button.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+  .demo { font-size: 12.5px; color: var(--muted); background: var(--brand-soft); padding: 8px 10px; border-radius: 8px; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 30px); opacity: 0; pointer-events: none;
+           background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 12px; font-weight: 600; font-size: 14px;
+           transition: .25s; z-index: 50; max-width: calc(100vw - 32px); }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.err { background: var(--bad); color: #fff; }
+
+  @media (max-width: 720px) {
+    .filters { grid-template-columns: 1fr 1fr; }
+    .filters input { grid-column: 1 / -1; }
+    .hero h1 { font-size: 23px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="logo">A</span> AdminToko</div>
+    <div id="authArea"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Katalog Produk</h1>
+    <p>Data diambil langsung dari REST API Laravel (<code>/api/products</code>).</p>
+  </section>
+
+  <section class="filters">
+    <input id="fSearch" type="search" placeholder="Cari nama produk...">
+    <select id="fCategory"><option value="">Semua kategori</option></select>
+    <select id="fSort">
+      <option value="product_id|asc">Urutan: terlama</option>
+      <option value="created_at|desc">Terbaru</option>
+      <option value="price|asc">Harga termurah</option>
+      <option value="price|desc">Harga termahal</option>
+      <option value="name|asc">Nama A-Z</option>
+    </select>
+  </section>
+
+  <div class="meta"><span id="info">Memuat...</span><span id="pageInfo"></span></div>
+  <section class="grid" id="grid"></section>
+  <nav id="pager" aria-label="Halaman"></nav>
+</main>
+
+<footer>
+  <a href="/api/products" target="_blank" rel="noopener">Lihat JSON mentah</a> &middot; Evaluasi 2 REST API
+</footer>
+
+<!-- Dialog login / daftar -->
+<dialog id="authDialog">
+  <form id="authForm" novalidate>
+    <h2 id="authTitle">Masuk</h2>
+    <div class="tabs">
+      <button type="button" class="active" data-tab="login">Masuk</button>
+      <button type="button" data-tab="register">Daftar</button>
+    </div>
+    <label id="nameWrap" hidden>Nama
+      <input name="name" autocomplete="name">
+      <span class="err" data-err="name"></span>
+    </label>
+    <label>Email
+      <input name="email" type="email" value="test@example.com" autocomplete="email">
+      <span class="err" data-err="email"></span>
+    </label>
+    <label>Password
+      <input name="password" type="password" value="password" autocomplete="current-password">
+      <span class="err" data-err="password"></span>
+    </label>
+    <div class="demo" id="demoNote">Akun demo dari seeder: test@example.com / password</div>
+    <div class="dlg-actions">
+      <button type="button" class="btn" data-action="close-auth">Batal</button>
+      <button type="submit" class="btn primary" id="authSubmit">Masuk</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Dialog tambah / ubah produk -->
+<dialog id="productDialog">
+  <form id="productForm" novalidate>
+    <h2 id="pfTitle">Tambah Produk</h2>
+    <label>Nama produk
+      <input name="name" maxlength="150">
+      <span class="err" data-err="name"></span>
+    </label>
+    <label>Kategori
+      <select name="category_id" id="pfCategory"></select>
+      <span class="err" data-err="category_id"></span>
+    </label>
+    <div class="two">
+      <label>Harga (Rp)
+        <input name="price" type="number" min="0" step="any">
+        <span class="err" data-err="price"></span>
+      </label>
+      <label>Stok
+        <input name="stock" type="number" min="0" step="1">
+        <span class="err" data-err="stock"></span>
+      </label>
+    </div>
+    <label>Deskripsi
+      <textarea name="description" rows="3"></textarea>
+      <span class="err" data-err="description"></span>
+    </label>
+    <label>Gambar <span class="hint" id="pfHint">jpg / png, maks 2 MB</span>
+      <input name="img" type="file" accept="image/png,image/jpeg">
+      <span class="err" data-err="img"></span>
+    </label>
+    <div class="dlg-actions">
+      <button type="button" class="btn" data-action="close-product">Batal</button>
+      <button type="submit" class="btn primary">Simpan</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const API = '/api';
+  const $ = (s, r = document) => r.querySelector(s);
+
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+
+  const state = {
+    page: 1, search: '', category: '', sort: 'product_id|asc', perPage: 8,
+    token: store.get('token'), user: null, categories: [], items: [], authMode: 'login'
+  };
+
+  const rupiah = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  async function api(path, opts = {}) {
+    const method = opts.method || 'GET';
+    const headers = { 'Accept': 'application/json' };
+    let body = opts.body || null;
+    if (opts.auth && state.token) headers['Authorization'] = 'Bearer ' + state.token;
+    if (body && !(body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+      body = JSON.stringify(body);
+    }
+    let res;
+    try {
+      res = await fetch(API + path, { method, headers, body });
+    } catch (e) {
+      return { ok: false, status: 0, data: { message: 'Tidak bisa terhubung ke server. Pastikan php artisan serve menyala.' } };
+    }
+    let data = {};
+    try { data = await res.json(); } catch (e) {}
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  let toastTimer;
+  function toast(msg, type) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = 'toast'; }, 3200);
+  }
+
+  /* ---------- Auth ---------- */
+  function renderAuth() {
+    $('#authArea').innerHTML = state.token
+      ? '<span class="hello">Halo, <b>' + esc(state.user ? state.user.name : 'pengguna') + '</b></span>' +
+        '<button class="btn primary" data-action="add">+ Tambah Produk</button>' +
+        '<button class="btn ghost" data-action="logout">Keluar</button>'
+      : '<button class="btn primary" data-action="open-auth">Masuk / Daftar</button>';
+  }
+
+  async function loadProfile() {
+    if (!state.token) return;
+    const r = await api('/profile', { auth: true });
+    if (r.ok) state.user = r.data;
+    else if (r.status === 401) clearSession();
+    renderAuth();
+  }
+
+  function clearSession() {
+    state.token = null; state.user = null;
+    store.del('token');
+    renderAuth();
+  }
+
+  async function logout() {
+    await api('/logout', { method: 'POST', auth: true });
+    clearSession();
+    loadProducts();
+    toast('Berhasil keluar');
+  }
+
+  function setAuthMode(mode) {
+    state.authMode = mode;
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === mode));
+    $('#nameWrap').hidden = mode !== 'register';
+    $('#authTitle').textContent = mode === 'login' ? 'Masuk' : 'Daftar Akun';
+    $('#authSubmit').textContent = mode === 'login' ? 'Masuk' : 'Daftar';
+    $('#demoNote').hidden = mode !== 'login';
+    clearErrors($('#authForm'));
+  }
+
+  function openAuth() {
+    setAuthMode('login');
+    $('#authDialog').showModal();
+  }
+
+  async function submitAuth(e) {
+    e.preventDefault();
+    const f = e.target;
+    clearErrors(f);
+    const email = f.elements['email'].value.trim();
+    const password = f.elements['password'].value;
+    const btn = $('#authSubmit');
+    btn.disabled = true;
+    let r;
+
+    if (state.authMode === 'register') {
+      r = await api('/register', { method: 'POST', body: { name: f.elements['name'].value.trim(), email, password } });
+      if (!r.ok) { btn.disabled = false; return handleFormError(f, r); }
+      toast('Pendaftaran berhasil, masuk...');
+    }
+
+    r = await api('/login', { method: 'POST', body: { email, password } });
+    btn.disabled = false;
+    if (!r.ok) return handleFormError(f, r);
+
+    state.token = r.data.token;
+    store.set('token', state.token);
+    $('#authDialog').close();
+    await loadProfile();
+    loadProducts();
+    toast('Berhasil masuk');
+  }
+
+  /* ---------- Error helpers ---------- */
+  function clearErrors(form) {
+    form.querySelectorAll('[data-err]').forEach(el => { el.textContent = ''; });
+  }
+  function handleFormError(form, r) {
+    if (r.status === 422 && r.data && r.data.errors) {
+      let shown = false;
+      Object.keys(r.data.errors).forEach(k => {
+        const el = form.querySelector('[data-err="' + k + '"]');
+        const msg = Array.isArray(r.data.errors[k]) ? r.data.errors[k][0] : r.data.errors[k];
+        if (el) { el.textContent = msg; shown = true; }
+      });
+      if (!shown) toast(r.data.message || 'Data tidak valid', 'err');
+    } else {
+      toast((r.data && r.data.message) || 'Terjadi kesalahan', 'err');
+    }
+  }
+
+  /* ---------- Categories ---------- */
+  async function loadCategories() {
+    const r = await api('/categories');
+    if (!r.ok || !Array.isArray(r.data)) return;
+    state.categories = r.data;
+    const opts = r.data.map(c => '<option value="' + c.category_id + '">' + esc(c.category) + '</option>').join('');
+    $('#fCategory').innerHTML = '<option value="">Semua kategori</option>' + opts;
+    $('#pfCategory').innerHTML = '<option value="">Pilih kategori</option>' + opts;
+  }
+
+  /* ---------- Products ---------- */
+  function card(p) {
+    const initial = esc((p.name || '?').trim().charAt(0).toUpperCase());
+    const thumb = p.img_url
+      ? '<img src="' + esc(p.img_url) + '" alt="' + esc(p.name) + '" loading="lazy">'
+      : '<div class="ph">' + initial + '</div>';
+    const cls = p.stock > 10 ? 'ok' : (p.stock > 0 ? 'low' : 'out');
+    const txt = p.stock > 0 ? 'Stok ' + p.stock : 'Habis';
+    const actions = state.token
+      ? '<div class="actions"><button class="btn small" data-action="edit" data-id="' + p.id + '">Ubah</button>' +
+        '<button class="btn small danger" data-action="del" data-id="' + p.id + '">Hapus</button></div>'
+      : '';
+    return '<article class="card"><div class="thumb">' + thumb + '</div><div class="body">' +
+      '<span class="chip">' + esc(p.category && p.category.name) + '</span>' +
+      '<h3 class="name">' + esc(p.name) + '</h3>' +
+      '<p class="desc">' + esc(p.description || 'Tanpa deskripsi') + '</p>' +
+      '<div class="row"><span class="price">' + rupiah(p.price) + '</span><span class="stock ' + cls + '">' + txt + '</span></div>' +
+      actions + '</div></article>';
+  }
+
+  function renderPager(meta) {
+    const el = $('#pager');
+    if (!meta || meta.last_page <= 1) { el.innerHTML = ''; return; }
+    const cur = meta.current_page, last = meta.last_page;
+    const pages = [];
+    for (let i = 1; i <= last; i++) {
+      if (i === 1 || i === last || Math.abs(i - cur) <= 1) pages.push(i);
+      else if (pages[pages.length - 1] !== '…') pages.push('…');
+    }
+    el.innerHTML =
+      '<button data-page="' + (cur - 1) + '"' + (cur === 1 ? ' disabled' : '') + '>‹</button>' +
+      pages.map(p => p === '…'
+        ? '<span class="dots">…</span>'
+        : '<button data-page="' + p + '" class="' + (p === cur ? 'active' : '') + '">' + p + '</button>').join('') +
+      '<button data-page="' + (cur + 1) + '"' + (cur === last ? ' disabled' : '') + '>›</button>';
+  }
+
+  async function loadProducts() {
+    const [sortBy, order] = state.sort.split('|');
+    const q = new URLSearchParams({ page: state.page, per_page: state.perPage, sort_by: sortBy, order });
+    if (state.search) q.set('search', state.search);
+    if (state.category) q.set('category_id', state.category);
+
+    $('#info').textContent = 'Memuat...';
+    const r = await api('/products?' + q.toString());
+    const grid = $('#grid');
+
+    if (!r.ok) {
+      state.items = [];
+      grid.innerHTML = '<div class="state">' + esc((r.data && r.data.message) || 'Gagal memuat produk') + '</div>';
+      $('#info').textContent = 'Gagal memuat data';
+      $('#pageInfo').textContent = '';
+      renderPager(null);
+      return;
+    }
+
+    state.items = r.data.data || [];
+    const meta = r.data.meta || {};
+    grid.innerHTML = state.items.length
+      ? state.items.map(card).join('')
+      : '<div class="state">Tidak ada produk yang cocok dengan pencarianmu.</div>';
+    $('#info').textContent = (meta.total || 0) + ' produk ditemukan';
+    $('#pageInfo').textContent = meta.last_page ? 'Halaman ' + meta.current_page + ' dari ' + meta.last_page : '';
+    renderPager(meta);
+  }
+
+  function openProductForm(p) {
+    const f = $('#productForm');
+    f.reset();
+    clearErrors(f);
+    f.dataset.id = p ? p.id : '';
+    $('#pfTitle').textContent = p ? 'Ubah Produk' : 'Tambah Produk';
+    $('#pfHint').textContent = p ? 'kosongkan jika tidak ingin mengganti gambar' : 'jpg / png, maks 2 MB';
+    if (p) {
+      f.elements['name'].value = p.name || '';
+      f.elements['category_id'].value = p.category ? p.category.id : '';
+      f.elements['price'].value = p.price;
+      f.elements['stock'].value = p.stock;
+      f.elements['description'].value = p.description || '';
+    }
+    $('#productDialog').showModal();
+  }
+
+  async function submitProduct(e) {
+    e.preventDefault();
+    const f = e.target;
+    clearErrors(f);
+    const id = f.dataset.id;
+    const fd = new FormData(f);
+    const file = fd.get('img');
+    if (!file || !file.size) fd.delete('img');
+    if (id) fd.append('_method', 'PUT');
+
+    const btn = f.querySelector('[type=submit]');
+    btn.disabled = true;
+    const r = await api(id ? '/products/' + id : '/products', { method: 'POST', body: fd, auth: true });
+    btn.disabled = false;
+
+    if (r.ok) {
+      $('#productDialog').close();
+      toast(id ? 'Produk diperbarui' : 'Produk ditambahkan');
+      loadProducts();
+    } else if (r.status === 401) {
+      $('#productDialog').close();
+      clearSession();
+      toast('Sesi habis, silakan masuk lagi', 'err');
+      openAuth();
+    } else {
+      handleFormError(f, r);
+    }
+  }
+
+  async function deleteProduct(id) {
+    const p = state.items.find(x => String(x.id) === String(id));
+    if (!confirm('Hapus produk "' + (p ? p.name : id) + '"?')) return;
+    const r = await api('/products/' + id, { method: 'DELETE', auth: true });
+    if (r.ok) { toast('Produk dihapus'); loadProducts(); }
+    else if (r.status === 401) { clearSession(); toast('Sesi habis, silakan masuk lagi', 'err'); openAuth(); }
+    else toast((r.data && r.data.message) || 'Gagal menghapus', 'err');
+  }
+
+  /* ---------- Events ---------- */
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-action], [data-page], [data-tab]');
+    if (!t) return;
+    if (t.dataset.page) {
+      const p = parseInt(t.dataset.page, 10);
+      if (p >= 1) { state.page = p; loadProducts(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      return;
+    }
+    if (t.dataset.tab) { setAuthMode(t.dataset.tab); return; }
+    const id = t.dataset.id;
+    switch (t.dataset.action) {
+      case 'open-auth': openAuth(); break;
+      case 'close-auth': $('#authDialog').close(); break;
+      case 'close-product': $('#productDialog').close(); break;
+      case 'logout': logout(); break;
+      case 'add': openProductForm(null); break;
+      case 'edit': openProductForm(state.items.find(x => String(x.id) === String(id))); break;
+      case 'del': deleteProduct(id); break;
+    }
+  });
+
+  let debounce;
+  $('#fSearch').addEventListener('input', e => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => { state.search = e.target.value.trim(); state.page = 1; loadProducts(); }, 350);
+  });
+  $('#fCategory').addEventListener('change', e => { state.category = e.target.value; state.page = 1; loadProducts(); });
+  $('#fSort').addEventListener('change', e => { state.sort = e.target.value; state.page = 1; loadProducts(); });
+  $('#authForm').addEventListener('submit', submitAuth);
+  $('#productForm').addEventListener('submit', submitProduct);
+
+  /* ---------- Init ---------- */
+  renderAuth();
+  loadCategories();
+  loadProfile();
+  loadProducts();
+})();
+</script>
+</body>
+</html>

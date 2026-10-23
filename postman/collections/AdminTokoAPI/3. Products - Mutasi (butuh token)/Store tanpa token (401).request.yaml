@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{base_url}}/api/products"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: formdata
+  content:
+    - type: text
+      key: name
+      value: Tes
+    - type: text
+      key: category_id
+      value: "1"
+    - type: text
+      key: price
+      value: "1000"
+    - type: text
+      key: stock
+      value: "1"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: pm.test('Tanpa token 401', () => pm.response.to.have.status(401));
+    language: text/javascript
+order: 1000

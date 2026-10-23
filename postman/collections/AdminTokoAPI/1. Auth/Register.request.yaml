@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{base_url}}/api/register"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: formdata
+  content:
+    - type: text
+      key: name
+      value: Budi
+    - type: text
+      key: email
+      value: budi@example.com
+    - type: text
+      key: password
+      value: password123
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: pm.test('Register 201', () => pm.response.to.have.status(201));
+    language: text/javascript
+order: 1000

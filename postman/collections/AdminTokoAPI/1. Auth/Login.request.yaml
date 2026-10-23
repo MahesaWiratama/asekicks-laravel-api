@@ -1,0 +1,25 @@
+$kind: http-request
+description: "User dari seeder: test@example.com / password. Token otomatis disimpan ke variabel {{token}}."
+url: "{{base_url}}/api/login"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: formdata
+  content:
+    - type: text
+      key: email
+      value: test@example.com
+    - type: text
+      key: password
+      value: password
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      const j = pm.response.json();
+      pm.test('Login berhasil (200)', () => pm.response.to.have.status(200));
+      if (j.token) { pm.collectionVariables.set('token', j.token); }
+    language: text/javascript
+order: 2000

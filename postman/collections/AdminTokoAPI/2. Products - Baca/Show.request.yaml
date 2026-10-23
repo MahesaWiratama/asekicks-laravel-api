@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{base_url}}/api/products/1"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: pm.test('Show 200', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 3000

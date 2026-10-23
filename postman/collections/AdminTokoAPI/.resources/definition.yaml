@@ -1,0 +1,12 @@
+$kind: collection
+description: Evaluasi 2 - RESTful API Laravel (Sanctum). Jalankan 'Login' dulu agar token tersimpan otomatis.
+variables:
+  base_url: http://127.0.0.1:8000
+  token: ""
+  product_id: "1"
+auth:
+  - id: c0d71cab-2857-4e64-9029-4b8017d596bd
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

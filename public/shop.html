@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asekicks - Solusi Sepatumu</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container">
+    <a class="brand" href="/">Asekicks</a>
+    <div class="nav-actions">
+      <button class="btn ghost" data-theme-btn aria-label="Ganti tema">🌙</button>
+      <button class="btn ghost" id="btnWish" aria-label="Wishlist">❤️<span class="badge" id="wishBadge" hidden>0</span></button>
+      <button class="btn primary" id="btnCart" aria-label="Keranjang">🛒 <span class="lbl">Keranjang</span><span class="badge" id="cartBadge" hidden>0</span></button>
+      <button class="btn ghost" id="btnAccount" aria-label="Akun">👤 <span class="lbl" id="acctLbl">Masuk</span></button>
+    </div>
+  </div>
+</nav>
+
+<header class="container hero">
+  <h1>Temukan sepatu favoritmu</h1>
+  <p class="muted">Asekicks — solusi sepatumu. Sneakers, Running, dan Flatshoes pilihan.</p>
+</header>
+
+<main class="container">
+  <section class="filters" aria-label="Pencarian dan filter">
+    <input type="search" id="fQ" placeholder="Cari nama sepatu atau brand...">
+    <div class="chips" id="chips"></div>
+    <div class="filter-row">
+      <select id="fPrice" aria-label="Rentang harga">
+        <option value="0">Semua harga</option>
+        <option value="1">&lt; Rp 500 rb</option>
+        <option value="2">Rp 500 rb - 1 jt</option>
+        <option value="3">&gt; Rp 1 jt</option>
+      </select>
+      <label class="check"><input type="checkbox" id="fStock"> Hanya yang tersedia</label>
+      <span class="count" id="count">Memuat...</span>
+    </div>
+  </section>
+
+  <section class="grid" id="grid"></section>
+  <nav class="pager" id="pager" aria-label="Halaman"></nav>
+</main>
+
+<footer class="footer">© Asekicks · Solusi Sepatumu</footer>
+
+<script src="/assets/core.js"></script>
+<script src="/assets/shop.js"></script>
+</body>
+</html>

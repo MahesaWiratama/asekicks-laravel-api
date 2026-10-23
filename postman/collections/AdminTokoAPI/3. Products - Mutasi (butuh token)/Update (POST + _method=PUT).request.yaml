@@ -1,0 +1,23 @@
+$kind: http-request
+description: Pakai POST dengan _method=PUT agar form-data (termasuk file gambar) terbaca PHP.
+url: "{{base_url}}/api/products/{{product_id}}"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: formdata
+  content:
+    - type: text
+      key: _method
+      value: PUT
+    - type: text
+      key: price
+      value: "21000000"
+    - type: text
+      key: stock
+      value: "5"
+scripts:
+  - type: afterResponse
+    code: pm.test('Update 200', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 4000
